@@ -269,11 +269,7 @@ func (b *Builder) AddDirTo(dir string, u *types.Universe) error {
 	if _, err := b.importPackage(dir, true); err != nil {
 		return err
 	}
-	pkg, ok := b.buildPackages[dir]
-	if !ok {
-		return fmt.Errorf("no such package: %q", dir)
-	}
-	return b.findTypesIn(canonicalizeImportPath(pkg.ImportPath), u)
+	return b.findTypesIn(canonicalizeImportPath(b.buildPackages[dir].ImportPath), u)
 }
 
 // AddDirectoryTo adds an entire directory to a given Universe. Unlike AddDir,
@@ -287,11 +283,7 @@ func (b *Builder) AddDirectoryTo(dir string, u *types.Universe) (*types.Package,
 	if _, err := b.importPackage(dir, true); err != nil {
 		return nil, err
 	}
-	pkg, ok := b.buildPackages[dir]
-	if !ok {
-		return nil, fmt.Errorf("no such package: %q", dir)
-	}
-	path := canonicalizeImportPath(pkg.ImportPath)
+	path := canonicalizeImportPath(b.buildPackages[dir].ImportPath)
 	if err := b.findTypesIn(path, u); err != nil {
 		return nil, err
 	}
@@ -731,7 +723,8 @@ func (b *Builder) walkType(u types.Universe, useName *types.Name, in tc.Type) *t
 		}
 		out.Kind = types.Array
 		out.Elem = b.walkType(u, nil, t.Elem())
-		out.Len = in.(*tc.Array).Len()
+		// TODO: need to store array length, otherwise raw type name
+		// cannot be properly written.
 		return out
 	case *tc.Chan:
 		out := u.Type(name)
