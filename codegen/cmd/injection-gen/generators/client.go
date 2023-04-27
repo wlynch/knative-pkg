@@ -369,10 +369,9 @@ func Get(ctx {{.contextContext|raw}}) {{.clientSetInterface|raw}} {
 }
 
 type wrapClient struct {
+	{{.clientSetInterface|raw}}
 	dyn {{.dynamicInterface|raw}}
 }
-
-var _ {{.clientSetInterface|raw}} = (*wrapClient)(nil)
 
 func (w *wrapClient) Discovery() {{.discoveryInterface|raw}} {
 	panic("Discovery called on dynamic client!")
